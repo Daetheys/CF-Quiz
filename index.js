@@ -7,34 +7,12 @@ $(document).ready(main);
 /* Main params
 /* ------------------------------------------------------------------------------------------ */
 // Constant parameters 
-var TIME_BETWEEN_QUESTIONS = 10000;
+var TIME_BETWEEN_QUESTIONS = 1000;
 const MAX_REQUESTS = 7;
 const DEBUG = 0;
-const INPUT_MIN_LENGTH = [5, 500];
-const condition = 'reasoning';
+const condition = 'cf';
+const pack_id = 0;
 
-if (condition == 'reasoning'){
-    for (let k = 0; k < dataset.questions.length; k++){
-        dataset.questions[k]['append'] = "Let's think step by step";
-        dataset.questions[k]['additional'] = {
-            "append":"Therefore the answer is",
-            "entered":[""],
-            "type":"long",
-        };
-    }
-    TIME_BETWEEN_QUESTIONS *= 1;
-} else if (condition == 'example'){
-    for (let k = 0; k < dataset.questions.length; k++){
-        //dataset.questions[k]['previous'] = {};
-        //Object.assign(dataset.questions[k]['previous'],dataset.old_questions[k]);
-        //dataset.questions[k]['previous']['blocked'] = true;
-        dataset.old_questions[k]['additional'] = {};
-        Object.assign(dataset.old_questions[k]['additional'],dataset.questions[k]);
-        dataset.old_questions[k]['blocked'] = true;
-    }
-    dataset.questions = dataset.old_questions;
-    TIME_BETWEEN_QUESTIONS *= 1;
-}
 
 // global variables
 var currentQuestionIndex = 0;
@@ -66,6 +44,17 @@ function main() {
 
 // Initialization functions go here
 const init = async () => {
+
+    var json = await $.getJSON("db.json");
+    var pack = json[pack_id];
+
+    for (var i=0;i<pack.length;i++){
+        dataset.questions.push({});
+        dataset.questions[i]["text"] = pack[i].question;
+        dataset.questions[i]["answers"] = pack[i].answers;
+        dataset.questions[i]["entered"] = 0;
+        dataset.questions[i]["type"]  = "multiple";
+    }
 
     if (reset == 1 && DEBUG) resetState();
 
@@ -115,7 +104,7 @@ const sendItemData = async (idx) => {
     let data = {
         "prolificID": prolificID,
         "questionID": idx,
-        "sequenceID": 0,
+        "packID": pack_id,
         "question": (dataset.questions[idx].text),
         "answer": dataset.questions[idx].entered,
         "cond": condition,
@@ -361,13 +350,7 @@ const appendScenario = (question, asHTML = false, additional = false, example = 
     let quizQuestionTextSPAN = document.createElement(`span`)
     quizQuestionTextSPAN.className = `quiz-question-text-item`
     let text = question;
-    if (asHTML) {
-        if (example){
-            text = '<b>Example Question</b> <br>' + question;
-        } else {
-            text = '<b>Question</b> <br>' + question;
-        }
-    }
+    text = '<b>Question</b> <br>' + question;
     // if (asHTML) {
     quizQuestionTextSPAN.innerHTML = text;
     // } else {
@@ -399,124 +382,162 @@ const appendTitle = (title) => {
     panel.appendChild(quizQuestionTitle)
 }
 
-// Assigns the question's text 
-const appendDilemma = (question, i) => {
-    // Generating question text
-    let quizQuestionDilemma = document.createElement('div')
-    let quizQuestionDilemmaDIV = document.createElement('div')
-    quizQuestionDilemmaDIV.id = "quiz-dilemma-container"
-    quizQuestionDilemmaDIV.className = "quiz-question-text-container quiz-question-dilemma-container"
 
-    quizQuestionDilemma.id = `quiz-question-dilemma`
-    quizQuestionDilemma.classList.add(`quiz-question-text-item`)
-    // let quizQuestionTextSPAN = document.createElement(`span`)
-    quizQuestionDilemma.innerHTML = `<b>Question ${i}</b><br>` + question;
+//Slider management
+class SliderManager {
+    // class using static functions (i.e. each func can be extracted
+    // from the class directly, there are no public members) to manage the slider
 
-    quizQuestionDilemmaDIV.appendChild(quizQuestionDilemma)
+    static generateSlider({
+                              min = 0, max = 100, step = 5,
+                              initValue = 0,
+                              classname = 'slider'
+                          } = {}) {
+        let slider = `<main style="flex-basis: 100%">
+            <form id="form" class="${classname}">
+            <div class="range">
+            <span class="leftlabel">A</span>
+            <span class="rightlabel">B</span>
+            <input id="slider" name="range" type="range" value="${initValue}" min="${min}" max="${max}" step="${step}">
+            <div class="range-output">
+            <output id="output" class="output" name="output" for="range">
+            ${initValue}
+             </output>
+             </div>
+             </div>
+            </form>
+            </main>`;
 
-    if (i > 1) {
-        quizQuestionDilemmaDIV.disabled = true;
-        quizQuestionDilemmaDIV.classList.add('opacityblur')
+        return slider;
+    }
+    static listenOnArrowKeys() {
+        document.onkeydown = checkKey;
+
+        function checkKey(e) {
+            let sliderObj = $('#slider');
+
+            let value = parseFloat(sliderObj.val());
+            let step = parseFloat(sliderObj.attr('step'));
+
+            e = e || window.event;
+
+            if (e.keyCode == '37') {
+                // left arrow
+                sliderObj.val(value - step).change();
+            }
+            else if (e.keyCode == '39') {
+                // right arrow
+                sliderObj.val(value + step).change();
+            }
+
+        }
+    }
+    static listenOnSlider(clickArgs, clickFunc) {
+
+        rangeInputRun();
+        let slider = $('#slider');
+        let output = document.getElementById('output');
+        let form = document.getElementById('form');
+
+        form.oninput = function () {
+            output.value = slider.val();
+        };
+
+        clickArgs.slider = slider;
+
+        /*let ok = $('#quiz-continue-button-container');
+        ok.click(clickArgs, clickFunc);
+
+        return slider*/
     }
 
-    document.getElementById('quiz-question-container').appendChild(quizQuestionDilemmaDIV)
+    static clickEvent(choice) {
+        console.log(choice);
+        dataset.questions[currentQuestionIndex].entered = choice;
+        console.log(dataset.questions[currentQuestionIndex].entered);
+    }
 }
 
-const appendTextFormQuestion = (question, additional) => {
-    let firstdiv = document.createElement(`div`);
-    firstdiv.className = "input-contain";
-    firstdiv.id = "form"
-    let seconddiv = document.createElement(`div`);
-    seconddiv.className = "text"
-    //seconddiv.innerText = 'Answer here...'
-
-    let input = document.createElement(`textarea`);//(`input`);//
-    input.autocorrect = 'on'
-    input.placeholder = 'Answer here...'
-    var minlength = INPUT_MIN_LENGTH[0];
-    //input.maxlength = INPUT_MIN_LENGTH[1];
-    if ('append' in question){
-        input.value = question['append'];
-        input.setCustomValidity("Answer is too short.");
-        minlength += question['append'].length;
+// simple range function
+function range(start, stop, step) {
+    let a = [start], b = start;
+    while (b < stop) {
+        a.push(b += step || 1);
     }
-    if (question.entered.length > 0){
-        input.value += question.entered[0];
-        input.style.borderColor = '#999999';
-    }
-    //input.innerHTML += question['entered'][0]
-    input.minLength = minlength;
-    input.id = 'fname' + (+(additional));
-    input.name = 'fname';
-    input.autocomplete = 'off';
-    input.required = true;
-    firstdiv.appendChild(input)
-    //firstdiv.appendChild(label)
-
-    input.addEventListener("keyup", () => {
-        if (question['append'] != undefined){
-            input.value = question['append'] + input.value.slice(question['append'].length,input.value.length);
-        }
-        if (input.value.length < minlength){
-            input.setCustomValidity("Answer is too short.");
-        } else {
-            input.setCustomValidity("");
-        }
-        saveAnswer(input.value, question);
-    })
-
-    if (question.blocked){
-        input.disabled = true;
-    }
-
-    if (additional) {
-        firstdiv.classList.add('opacityblur');
-        input.disabled = true;
-        setTimeout(() => {
-            input.disabled = false;
-            firstdiv.classList.remove('opacityblur');
-            //removeOpacityBlur();
-        }, TIME_BETWEEN_QUESTIONS/2);
-    }
-    document.getElementById('quiz-question-container').appendChild(firstdiv)
+    return a;
 }
 
+//append to div
+function appendElement(divId, el) {
+    $(`#${divId}`).append(el);
+}
+
+function generateSubmitButton(n) {
+    return `<button id="ok" class="btn custom-button">Submit</button>`;
+}
+
+function generateImg(src) {
+    return  `<img class="border rounded stim" src="${src}">`;
+}
+
+function generateQuestion(question) {
+    return `<h5 class="justify-content-center">What was the average value of this symbol?</h5>`;
+}
 
 // Loads a multiple choice quiz question
 const loadQuestion = async (question, init, additional = false, show_title = true, example = false) => {
     startTime = Date.now();
     if (!progressBarIsVisible()) {
-        toggleProgressBar()
-        updateProgessBarStatus()
-    }
-    if (show_title) {
-        saveState();
-        appendTitle('Item ' + (currentQuestionIndex + 1));
-    }
-    if (question.text != undefined)
-        appendScenario(question.text, true, additional, example);
-    if (!additional){
+        toggleProgressBar();
         updateProgessBarStatus();
     }
-    //appendDilemma(question.dilemma, additional + 1)
-    if (question.type == `multiple` || question.type == `single`) {
-        if (question.answers.length <= 2) {
-            loadBinaryChoiceQuestion(question);
-        } else {
-            loadMultipleChoiceQuestion(question);
-        }
-        loadPreviousEnteredChoice(question.entered);
-    } else if (question.type == `short` || question.type == `long`) {
-        appendTextFormQuestion(question, additional);
-        //loadPreviousEnteredText(question.entered)
-    }
+    saveState();
+    updateProgessBarStatus();
+    let sliderHTML = SliderManager.generateSlider({text: question["text"], min: -100, max: 100, step: 1, initValue: 0});
 
-    // Skips loading animation on initialization
-    if (!init) {
-        await moveQuestionContainerMiddle();
+    //Add the list of answers
+    appendScenario(question["text"]);
+    let quizAnswersUL = appendAnswersList();
+    let letters = ['A','B']
+    for (let i = 0; i< question.answers.length; i++){
+        let quizQuestionDIV = document.createElement(`ul`);
+        quizQuestionDIV.className = `quiz-answer-text-container-single unselected-answer`
+        // Assigns ID as ASCII values (A = 65, B = 66, etc.)
+        quizQuestionDIV.id = (i).toString()
+        // Generate elements
+        let quizQuestionPress = document.createElement(`li`);
+        let quizQuestionNumeratorBox = document.createElement(`li`)
+        quizQuestionNumeratorBox.className = `answer-key-numerator-box`;
+        let quizQuestionNumerator = document.createElement(`li`);
+        let quizQuestionText = document.createElement(`li`);
+        quizQuestionNumeratorBox.append(quizQuestionNumerator)
+        // Adding elements to quiz answers
+        ed_QuizQuestionElements(question.type, quizQuestionPress, quizQuestionNumerator, quizQuestionDIV, quizQuestionText, (i + 1).toString(), 'green')
+        // Convert ASCII code to text for multiple choice selection
+        quizQuestionNumerator.innerText = letters[i];
+        quizQuestionText.innerText = question["answers"][i];
+        // Psuedoparent append
+        quizQuestionDIV.append(quizQuestionPress, quizQuestionNumeratorBox, quizQuestionText);
+        // Main parent append
+        quizAnswersUL.appendChild(quizQuestionDIV);
     }
-    //showHideContinueButton(dataset.questions[currentQuestionIndex])
+    appendElement('quiz-question-container',sliderHTML);
+    //appendElement('Stage',buttonHTML);
+
+    await moveQuestionContainerMiddle();
+
+    var clickEnabled = true;
+    SliderManager.listenOnSlider({}, function (event) {
+        if (clickEnabled){
+            let choice = event.data.slider.val();
+            SliderManager.clickEvent(choice);
+        }
+    });
+
+    SliderManager.listenOnArrowKeys();
+
 }
+
 
 // Function to load next question & possible answers in object
 const loadNewQuestion = async (adjustment) => {
@@ -540,15 +561,6 @@ const loadNewQuestion = async (adjustment) => {
 
 // Checks if we have reached the first or last question
 const canLoadNewQuestion = () => {
-    // Fail safe if we have reached last quesiton
-    // if (currentQuestionIndex < (dataset.questions.length)) {
-    //     currentQuestionIndex++
-    //     return true 
-    //     // Fail safe if trying to move before first question
-    // } else if (currentQuestionIndex < 0) {
-    //     currentQuestionIndex++
-    //     return true 
-    // // }
     return currentQuestionIndex < dataset.questions.length
 
 }
@@ -586,86 +598,6 @@ const appendAnswersList = () => {
     return quizAnswersUL
 }
 
-// Creates elements for multiple choice questions (checkboxes & radios)
-const loadMultipleChoiceQuestion = (question) => {
-    // Generating answer elements
-    let quizAnswersUL = appendAnswersList()
-    // questionHTML.id
-    for (let i = 0; i < question.answers.length; i++) {
-        let quizQuestionDIV = document.createElement(`div`)
-        quizQuestionDIV.className = `quiz-answer-text-container-single unselected-answer`
-        // Assigns ID as ASCII values (A = 65, B = 66, etc.)
-        quizQuestionDIV.id = (i).toString()
-        quizQuestionDIV.onclick = () => {
-            selectAnswer(quizQuestionDIV.id, false, 'green', question)
-        }
-        // Generate elements
-        let quizQuestionPress = document.createElement(`li`)
-        let quizQuestionNumerator = document.createElement(`li`)
-        let quizQuestionText = document.createElement(`li`)
-        // Adding elements to quiz answers
-        ed_QuizQuestionElements(question.type, quizQuestionPress, quizQuestionNumerator, quizQuestionDIV, quizQuestionText, (i + 1).toString(), 'green')
-        // Convert ASCII code to text for multiple choice selection
-        quizQuestionNumerator.innerText = (i + 1).toString();
-        quizQuestionText.innerText = question.answers[i]
-        // Psuedoparent append
-        quizQuestionDIV.append(quizQuestionPress, quizQuestionNumerator, quizQuestionText)
-        // Main parent append
-        quizAnswersUL.appendChild(quizQuestionDIV)
-    }
-}
-
-// Creates elements for binary choice questions
-const loadBinaryChoiceQuestion = (question) => {
-    let quizAnswersUL = appendAnswersList()
-    let signs = ['✔', '✘']
-
-    // questionHTML.id
-    for (let i = 0; i < question.answers.length; i++) {
-        let quizQuestionDIV = document.createElement(`div`)
-        quizQuestionDIV.className = `quiz-answer-text-container-single unselected-answer`
-        quizQuestionDIV.style.width = '45%'
-        quizQuestionDIV.setAttribute('tabindex', (i).toString())
-
-        // Assigns ID as ASCII values (A = 65, B = 66, etc.)
-        quizQuestionDIV.id = String.fromCharCode(i + 65);
-
-        quizQuestionDIV.onclick = () => {
-            selectAnswer(quizQuestionDIV.id, false, ['green', 'red'][+(i == 1)], question)
-            removeOpacityBlur()
-        }
-
-        // Generate elements
-        let quizQuestionPress = document.createElement(`li`)
-        let quizQuestionNumerator = document.createElement(`li`)
-        let quizQuestionText = document.createElement(`li`)
-
-        // Adding elements to quiz answers
-        ed_QuizQuestionElements(
-            question.type,
-            quizQuestionPress,
-            quizQuestionNumerator,
-            quizQuestionDIV,
-            quizQuestionText,
-            quizQuestionDIV.id,
-            ['green', 'red'][+(i == 1)]
-        )
-
-        // Convert ASCII code to text for multiple choice selection
-        quizQuestionNumerator.innerText = signs[i]
-
-        quizQuestionNumerator.style.fontSize = 30;
-
-        quizQuestionText.innerText = question.answers[i]
-        // Psuedoparent append
-        quizQuestionDIV.append(quizQuestionPress, quizQuestionNumerator, quizQuestionText)
-        // Main parent append
-        quizAnswersUL.appendChild(quizQuestionDIV)
-    }
-}
-
-
-
 // Adds class names to quiz question based on which type of which it is
 const ed_QuizQuestionElements = (type, press, numerator, container, text, n, color) => {
     // Append classes for different types of questions
@@ -685,79 +617,6 @@ const ed_QuizQuestionElements = (type, press, numerator, container, text, n, col
     // press.innerText = `Press ` + n
 }
 
-
-
-// Highlights and unhighlights given answers when a keytap is pressed 
-// key indicates the id of the given answer, invoking previous will prevent the function from editing the local answered questions object
-const selectAnswer = (key, previous, color, question) => {
-    let answer = document.getElementById(key)
-    if (answer) {
-        // If only one answer can be given, unselect all answers before reselecting new answer
-        if (answer.classList.contains(`question-type-single`)) {
-            unselectAllAnswers(document.getElementById('quiz-answer-list'))
-        }
-        // If answer is not yet selected, select it
-        if (answer.classList.contains(`unselected-answer`)) {
-            answer.classList.add(`selected-answer`)
-            if (color) {
-                answer.classList.add(color);
-            }
-            answer.classList.remove(`unselected-answer`)
-            indicateSelectedAnswer(answer, color)
-            saveAnswer(answer.textContent, question)
-            // if (!previous) {
-            // storeAnswers(true, key)
-            // }
-            // If answer is already selected, unselect it
-        } else if (answer.classList.contains(`selected-answer`)) {
-            answer.classList.add(`unselected-answer`)
-            answer.classList.remove(`selected-answer`)
-            // Unhighlight selected answer buttons
-            unselectAnswerButton(answer.children)
-            // if (!previous) {
-            // storeAnswers(false, key)
-            // }
-        }
-    }
-    // Triggers a check to see if we should display continue button
-    //showHideContinueButton(dataset.questions[currentQuestionIndex])
-}
-
-// Changes answer button appearance to show as selected
-const indicateSelectedAnswer = (answer, color) => {
-    let button = answer.querySelectorAll('.answer-key-numerator')
-    for (let i = 0; i < button.length; i++) {
-        button[i].classList.remove(`unselected-answer-button`)
-        button[i].classList.add(`selected-answer-button`)
-        if (color)
-            button[i].classList.add(`${color}`)
-    }
-}
-
-// Unselects all answers in a question
-const unselectAllAnswers = (answerList) => {
-    for (let i = 0; i < answerList.childElementCount; i++) {
-        let child = answerList.children[i]
-        if (child.classList.contains(`selected-answer`)) {
-            child.classList.add(`unselected-answer`)
-
-            child.classList.remove(`selected-answer`)
-        }
-        // re/un-assigns children attribute elements, such as button coloring classes
-        unselectAnswerButton(child.children)
-    }
-}
-
-// Unselects individual quiz answer buttons (e.g. Press A)
-const unselectAnswerButton = (child) => {
-    for (let j = 0; j < child.length; j++) {
-        let childButton = child[j]
-        if (childButton && childButton.classList.contains(`selected-answer-button`)) {
-            childButton.classList.add(`unselected-answer-button`)
-            childButton.classList.remove(`selected-answer-button`)
-        }
-    }
-}
 
 /* ---------------------------------------------------------------------------------------------------*/
 /* Animation and movement
@@ -845,6 +704,8 @@ const continueFunction = async () => {
 
     if (state == 'questions') {
         hideAndShowContinue()
+        let output = document.getElementById('output')
+        dataset.questions[currentQuestionIndex].entered = output.value;
         sendItemData(currentQuestionIndex);
         currentQuestionIndex++
     }
@@ -883,51 +744,7 @@ const cr_ContinueButton = () => {
 
     // Moves to next question on click
     continueBUTTON.onclick = continueFunction;
-    
-    /*async function () {
 
-        rt = Date.now() - startTime;
-        if (!continueClickable()) {
-            // checkInputValidity()
-            return;
-        }
-
-        if (state == 'instructions')
-            currentInstructionIndex++
-        
-        if (state == 'questions') {
-            wait = true;
-            $('#quiz-continue-button-container').fadeOut(40)
-            $('#quiz-continue-text').fadeOut(40)
-
-            setTimeout(() => {
-                wait = false;
-                $('#quiz-continue-button-container').fadeIn(500)
-                $('#quiz-continue-text').fadeIn(500)
-            }, TIME_BETWEEN_QUESTIONS);
-
-            sendItemData(currentQuestionIndex);
-            currentQuestionIndex++
-        }
-
-
-        let startQuestions = await loadNewInstruction();
-
-        if (startQuestions) {
-            state = 'questions'
-            let end = await loadNewQuestion(`next`)
-            if (end) {
-                state = 'end';
-                saveState()
-            }
-        }
-
-        if (state == 'end')
-            await loadEndPanel();
-
-
-    }*/
-    //continueSPAN.innerHTML = `press ENTER`
     continueDIV.append(continueBUTTON, continueSPAN)
     let parent = document.getElementById('quiz-main-page');//`quiz-question-container`)
     parent.append(continueDIV)
@@ -935,29 +752,6 @@ const cr_ContinueButton = () => {
     //showHideContinueButton(dataset.questions[currentQuestionIndex])
 }
 
-// Only shows a continue button if a question is selected
-//const showHideContinueButton = (question) => {
-//    if ((question.type == 'short' || question.type == `long`)) {
-//            document.getElementById(`quiz-continue-button-container`).style.display = `initial`
-//            document.getElementById(`quiz-continue-text`).style.display = `initial`
-//
-//    } else {
-//        try {
-//            let show = document.getElementById(`quiz-answer-list`).children
-//            let buttonContainer = document.getElementById(`quiz-continue-button-container`)
-//            document.getElementById(`quiz-continue-text`).style.display = `initial`
-//            // Checks if an answer has been selected. If so, shows continue button
-//            for (let i = 0; i < show.length; i++) {
-//                if (show[i].classList.contains(`selected-answer`)) {
-//                    buttonContainer.style.display = `initial`
-//                    return
-//                }
-//            }
-//            // If no answer is selected, don't display button
-//            buttonContainer.style.display = `none`
-//        } catch { }
-//    }
-//}
 
 /*----------------------------------------------------------------------------------------------- */
 /* Progress bar
@@ -989,20 +783,6 @@ const calculateQuizProgress = (questions) => {
     return answers
 }
 
-
-
-// Adds iteration capabilities to previous & next buttons 
-const ad_QuestionIteration = () => {
-    //    let prev = document.getElementById(`previous-question-load`)
-    //    let next = document.getElementById(`next-question-load`)
-    //    prev.onclick = () => {
-    //        loadNewQuestion(prev.id)
-    //    }
-    //    next.onclick = () => {
-    //        loadNewQuestion(next.id)
-    //    }
-}
-
 /*----------------------------------------------------------------------------------------------- */
 /* listeners functions
 /*----------------------------------------------------------------------------------------------- */
@@ -1012,24 +792,6 @@ document.onkeydown = function (evt) {
     evt = evt || window.event;
     let keyCode = evt.keyCode;
     let selected = document.getElementsByClassName('selected-answer-button').length > 0;
-
-    // Registers key selectors for A to J on multiple choice questions.
-    // if ((keyCode >= 48 && keyCode <= 57)) {
-    // selectAnswer(keyCode.toString() - 49)
-    // }
-    // Moves to next question  using enter key for open ended questions
-    /*let type = dataset.questions[currentQuestionIndex].type
-    if (((type == `single` || type == `multiple`) && keyCode == 13 && selected)) {
-        // loadNewQuestion('next-question-load')
-        $('.quiz-continue-button')[0].click()
-    }
-
-    if ((type == 'long' || type == 'short') && (keyCode == 13)) {
-        // loadNewQuestion('next-question-load')
-        if ($('.quiz-continue-button-container').css('display') != 'none') {
-            $('.quiz-continue-button')[0].click()
-        }
-    }*/
 };
 
 /*----------------------------------------------------------------------------------------------- */

@@ -579,39 +579,53 @@ div[contenteditable] {
 }
 
 .quiz-answer-text-item {
-    font-size: 25px;
+    font-size: 20px;
+    flex: 7;
     color: rgba(var(--color), 1) !important;
-    text-align: center;
+    text-align: left;
+    /*border-left-color: rgb(116, 116, 228); 
+    border-left-width: 5px;*/
+    /*margin-bottom: 10px;*/
+    padding: 10px 10px 10px 10px;
+    border-radius: .3rem;
 }
 
 .quiz-answer-list {
     list-style-type: none;
     padding-left: 0px;
-    text-align: center;
+    text-align: left;
 }
 
 .quiz-answer-text-container {
     position: relative;
+    display: table;
 }
 
 .quiz-answer-text-container-single {
     /* color: #4FB9A6; */
-    opacity: 1;
-    will-change: opacity;
+    background-color: #FAFAFA;
+    list-style-type: none;
+    border-radius:5px;
+    border-width:1px;
+    border-style:solid;
+    display:flex;
+    flex-flow: row nowrap;
+    width: auto;
     height: auto;
-    border-radius: 4px;
+    /*border-radius: 4px;*/
     min-width: 75px;
     min-height: 40px;
-    flex-grow: 1;
-    align-items: center;
+    /*flex-grow: 1;*/
+    /*align-items: center;*/
     /* display: flex; */
-    display: inline-table;
-    padding: 4px 18px 4px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    padding-left:0px;
+    margin-left:18px;
+    /*padding: 4px 18px 4px;*/
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.quiz-answer-text-container-single:hover {
+/*.quiz-answer-text-container-single:hover {
     background-color: #FAFAFA;
     cursor: pointer;
 }
@@ -621,11 +635,10 @@ div[contenteditable] {
 }
 
 .quiz-answer-text-container-single:hover .numerator-radio {
-    /* border-radius: 0 50% 50% 0; */
     background-color: rgba(var(--color), 1); 
     color: white;
 
-}
+}*/
 
 .quiz-answer-text-container-single .numerator-radio {
     /* border-radius: 0 50% 50% 0; */
@@ -665,26 +678,29 @@ div[contenteditable] {
     animation: fadein .5s linear forwards !important;
 }
 
-
+.answer-key-numerator-box {
+    flex: 1;
+    flex-grow:1;
+    position: relative;
+    /*float:left;*/
+    display:flex;
+    background-color: #4FB9A6;
+    flex-wrap: nowrap;
+    border-radius:1px;
+    border-style:solid;
+    /* align-self: flex; */
+    margin-right:10px;
+    /*margin-left:10px;*/
+    align-items: center;
+    justify-content: center;
+}
 
 .answer-key-numerator {
-    position: relative;
-    width: 38px;
-    height: 38px;
-    min-width: 22px;
+    color:#FAFAFA;
+    text-align:center;
+    background-color: rgba(var(--color), 1);
     font-size: 25px;
-    line-height: 16px;
-    font-family: sans-serif;
-    /* border: 1px solid #4FB9A6; */
     font-weight: bold;
-    display: flex;
-    /* align-self: flex; */
-    align-items: center;
-    box-shadow: transparent 0px 0px 0px 1px;
-    margin: auto;
-    margin-bottom: 8px;
-    -webkit-box-align: center;
-    justify-content: center;
 }
 
 .answer-typed-input-form {
@@ -792,8 +808,8 @@ div[contenteditable] {
 }
 
 .unselected-answer-button {
-    background-color: rgba(235, 233, 233, 0.603) !important;
-    color: rgba(var(--color), 1) !important;
+    /*background-color: rgba(235, 233, 233, 0.603) !important;
+    color: rgba(var(--color), 1) !important;*/
 }
 
 .selected-answer-button {
@@ -852,4 +868,231 @@ div[contenteditable] {
     font-weight: 1000;
     position: relative;
     top: 2px;
+}
+
+/* Range Slider */
+.range {
+    position: relative;
+    margin-top: 15%;
+    margin-bottom: 10%;
+}
+
+.slider {
+    flex-basis: 100%;
+}
+
+.range input[type=range] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0;
+    width: 100%;
+    height: 22px;
+    cursor: pointer;
+    display: block;
+}
+
+.range input[type=range]:focus {
+    outline: none;
+}
+
+.range input[type=range][disabled] {
+    opacity: .3;
+    cursor: default;
+}
+
+.range .rangeslider {
+    position: relative;
+    height: 22px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.range .rangeslider:before {
+    box-sizing: border-box;
+    width: 100%;
+    height: 4px;
+    background: #c7c7c7;
+    border-radius: 100px;
+    content: "";
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.range input::-webkit-slider-runnable-track {
+    box-sizing: border-box;
+    width: 100%;
+    height: 4px;
+    background: #c7c7c7;
+    border-radius: 100px;
+    margin: 11px 0;
+}
+
+.range input::-moz-range-track {
+    box-sizing: border-box;
+    width: 100%;
+    height: 4px;
+    background: #c7c7c7;
+    border-radius: 100px;
+    margin: 11px 0;
+}
+
+.range input::-ms-track {
+    box-sizing: border-box;
+    width: 100%;
+    height: 4px;
+    background: #c7c7c7;
+    border-radius: 100px;
+    color: transparent;
+    padding: 11px 0;
+    background: transparent;
+    border-color: transparent;
+}
+
+.range input::-ms-fill-lower,
+.range input::-ms-fill-upper {
+    box-sizing: border-box;
+    width: 100%;
+    height: 4px;
+    background: #c7c7c7;
+    border-radius: 100px;
+}
+
+.range input::-ms-fill-lower {
+    background: #c7c7c7;
+}
+
+.range .rangeslider-fill-lower {
+    background-color: #c7c7c7;
+    border-radius: 100px;
+    position: absolute;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    height: 4px;
+    will-change: width;
+}
+
+.range input::-webkit-slider-thumb {
+    box-sizing: border-box;
+    box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.5);
+    border: 6px solid #fff;
+    height: 24px;
+    width: 24px;
+    border-radius: 100px;
+    background: #333940;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    margin-top: 2px;
+}
+
+.range input::-moz-range-thumb {
+    box-sizing: border-box;
+    box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.5);
+    border: 6px solid #fff;
+    height: 24px;
+    width: 24px;
+    border-radius: 100px;
+    background: #333940;
+    cursor: pointer;
+}
+
+.range input::-ms-thumb {
+    box-sizing: border-box;
+    box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.5);
+    border: 6px solid #fff;
+    height: 24px;
+    width: 24px;
+    border-radius: 100px;
+    background: #333940;
+    cursor: pointer;
+}
+
+.range .rangeslider-thumb {
+    box-sizing: border-box;
+    /*box-shadow: 0px 4px 25px rgba(0, 0, 0, 0.5);*/
+    border: 6px solid #4FB9A6;
+    height: 24px;
+    width: 24px;
+    border-radius: 100px;
+    background: #4FB9A6;
+    cursor: pointer;
+    position: absolute;
+    touch-action: pan-x;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    will-change: left;
+}
+
+.range .range-output {
+    position: absolute;
+    /*left: 6px;
+    top: 6px;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+    transition: -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;*/
+}
+
+.range .range-output .output {
+    display: block;
+    position: absolute;
+    font-size: 0px;
+    /*height: 50px;
+    line-height: 50px;
+    min-width: 28px;
+    padding: 0 20px;
+    top: -26px;
+    -webkit-transform: translate(-50%, -100%);
+    transform: translate(-50%, -100%);
+    background: #3C455C;
+    color: #fff;
+    border-radius: 100px;
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;*/
+}
+
+.range .range-output .output:before {
+    content: "";
+    position: absolute;
+    /*bottom: -8px;
+    left: 50%;
+    border: 10px solid #3C455C;
+    border-bottom: none;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);*/
+}
+
+.leftlabel {
+    left:0;
+    top:-30;
+    position:absolute;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.rightlabel {
+    right:0;
+    top:-30;
+    position:absolute;
+    font-size: 25px;
+    font-weight: bold;
 }

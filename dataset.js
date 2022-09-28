@@ -73,175 +73,18 @@ export const dataset = {
 
 	],
 	questions: [
-		{
+		/*{
 			"title": "sControl",
-			"text": "A scarf costs 210€ more than a hat. The scarf and the hat cost 220€ in total. How much does the hat cost?",
+			"text": "Andie is a mechanical engineer by training. During college, Andie used to collect minerals and cristals, as a hobby. Ten years later, which of these two scenarios is more probable ?",
 			"id": 1,
-			"type": "long",
+			"type": "multiple",
 			"oldTitle": "sControl",
 			"entered": [''],
+			"answers":["Andie is a consultant for the British Museum","Andie is a consultant for the British Museum and builds model airplanes as a hobby"],
 			"correct": "",
 			"oldId": 1,
 			"cond": "control",
 			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "How long would it take 80 carpenters to repair 80 tables, if it takes 8 carpenters 8 hours to repair 8 tables?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "An entire forest was consumed by a wildfire in 40 hours, with its size doubling every hour. How long did it take to burn 50% of the forest?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "If Andrea can clean a house in 3 hours, and Alex can clean a house in 6 hours, how many hours would it take for them to clean a house together?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "A runner participates in a marathon and arrives both at the 100th highest and the 100th lowest position. How many participants are in the marathon?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "A woman buys a second-hand car for $1000, then sells it for $2000. Later she buys it back for $3000 and finally sells it for $4000. How much has she made?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "Frank decided to invest $10,000 into bitcoin in January 2018. Four months after he invested, the bitcoin he had purchased went down 50%. In the subsequent eight months, the bitcoin he had purchased went up 80%. What is the value of Frank’s bitcoin after one year?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-	],
-	old_questions: [
-		{
-			"title": "sControl",
-			"text": "A bat and a ball cost £1.10 in total. The bat costs £1.00 more than the ball. How much does the ball cost?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['The ball costs £0.05.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to makes 100 widgets ?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['It would take 5 minutes for 100 machines to make 100 widgets.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "In a lake, there is a patch of lily pads. Every day, the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how long would it take for the patch to cover half of the lake ?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['The patch would require 47 days to cover half of the lake.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "If John can drink one barrel of water in 6 days, and Mary can drink one barrel of water in 12 days, how long would it take them to drink one barrel of water together ?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['They would take 4 days to drink a barrel together.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "Jerry received both the 15th highest and the 15th lowest mark in the class. How many students are in the class ?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['There are 29 students in the class.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "A man buys a pig for £60, sells it for £70, buys it back for £80 and sells it finally for £90. How much has he made ?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['He made £20 dollars.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
-		{
-			"title": "sControl",
-			"text": "Simon decided to invest £8000 in the stock market one day early in 2008. Six months after he invested, on July 17, the stocks he had purchased went down 50%. Fortunately for Simon, from July 17 to October 17, the stocks he had purchased went up 75%. What is Simon's economic situation at this point ?",
-			"id": 1,
-			"type": "long",
-			"oldTitle": "sControl",
-			"entered": ['He has £7000 at this point.'],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		},
+		}*/
 	]
 }	
