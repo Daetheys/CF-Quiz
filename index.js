@@ -106,7 +106,7 @@ const sendItemData = async (idx) => {
         "questionID": idx,
         "packID": pack_id,
         "question": (dataset.questions[idx].text+'\n'+dataset.questions[idx].answers[0]+'\n'+dataset.questions[idx].answers[1]),
-        "answer": dataset.questions[idx].entered.toString()),
+        "answer": dataset.questions[idx].entered.toString(),
         "cond": condition,
         "rt": rt,
     }
