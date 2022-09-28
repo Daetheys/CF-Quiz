@@ -105,8 +105,8 @@ const sendItemData = async (idx) => {
         "prolificID": prolificID,
         "questionID": idx,
         "packID": pack_id,
-        "question": (dataset.questions[idx].text),
-        "answer": dataset.questions[idx].entered,
+        "question": (dataset.questions[idx].text+'\n'+dataset.questions[idx].answers[0]+'\n'+dataset.questions[idx].answers[1]),
+        "answer": str(dataset.questions[idx].entered),
         "cond": condition,
         "rt": rt,
     }
