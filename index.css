@@ -184,12 +184,12 @@ Google like
     margin-bottom: 5%;
 }
 
-input {
+/*input {
     height: 5rem;
     width: 100%;
     border: 2px solid gray;
     border-radius: .2rem;
-}
+}*/
 
 input:focus{
     outline: none;
@@ -212,7 +212,7 @@ input:focus:invalid {
     background-size: 2.2%;
 }
 
-input:valid {
+/*input:valid {
     border-color: #4FB9A6;
     background: url("images/check.png") no-repeat 95% 50% transparent;
 
@@ -222,7 +222,7 @@ input:valid {
 
 input:valid + .placeholder-text .text {
     color: #4FB9A6;
-}
+}*/
 
 
 textarea {
