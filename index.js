@@ -22,9 +22,11 @@ var state = 'instructions';
 var wait = false;
 var prolificID = new URLSearchParams(window.location.search).get('PROLIFIC_PID');
 var reset = new URLSearchParams(window.location.search).get('RESET');
+var packID = new URLSearchParams(window.location.search).get('PACK_ID');
 var startTime = undefined;
 var rt = undefined;
 if (!prolificID) prolificID = 'notfound';
+if (packID == undefined) packID = Math.floor(Math.random()*256);
 
 // get global from string with e.g. window["currentQuestionIndex"]()
 window.getGlobal = () => {
@@ -121,7 +123,6 @@ const sendItemData = async (idx) => {
         "cond": condition,
         "rt": rt,
     }
-    console.log(data);
 
     if (DEBUG) {
         // if debug notify with the content of sent data
@@ -463,9 +464,7 @@ class SliderManager {
     }
 
     static clickEvent(choice) {
-        console.log(choice);
         dataset.questions[currentQuestionIndex].entered = choice;
-        console.log(dataset.questions[currentQuestionIndex].entered);
     }
 }
 
@@ -518,6 +517,7 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
             if (quizQuestionDIV.classList.contains(`unselected-answer`)){
                 removeSlider();
                 selectAnswer(quizQuestionDIV.id, false, 'green', question);
+                question['selected'] = letters[i];
                 showSlider(question);
             }
         }
@@ -546,7 +546,6 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
 
     appendElement('quiz-question-container',sliderHTML);
 
-    console.log($("#range"));
     $("#range").fadeOut(0);
     /*slider.fadeOut(0);*/
 
@@ -781,7 +780,6 @@ const continueClickable = () => {
     // return Array.from(document.getElementsByTagName('input'))
     // .every((element, i) => (element.value.length >= INPUT_MIN_LENGTH[i]));
     var validity = checkInputValidity();
-    console.log(validity);
     return validity;
 }
 
@@ -817,7 +815,7 @@ const continueFunction = async () => {
     if (state == 'questions') {
         hideAndShowContinue()
         let output = document.getElementById('output')
-        dataset.questions[currentQuestionIndex].entered = ["",output.value];
+        dataset.questions[currentQuestionIndex].entered = [dataset.questions[currentQuestionIndex]['selected'],output.value];
         sendItemData(currentQuestionIndex);
         currentQuestionIndex++
     }
