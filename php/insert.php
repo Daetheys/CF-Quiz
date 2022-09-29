@@ -8,6 +8,8 @@ $id_question             = stripslashes(htmlspecialchars($_POST['questionID']));
 $idpack                  = stripslashes(htmlspecialchars($_POST['packID']));
 $question                = stripslashes(htmlspecialchars($_POST['question']));
 $answer                  = stripslashes(htmlspecialchars($_POST['answer']));
+$prob                    = stripslashes(htmlspecialchars($_POST['prob']));
+$initval                 = stripslashes(htmlspecialchars($_POST['initval']));
 $rt                      = stripslashes(htmlspecialchars($_POST['rt']));
 
 try {
@@ -22,7 +24,7 @@ if ($db->connect_error) {
   die("Connection failed: " . $db->connect_error);
 }
 # '$variable' if string, otherwise $variable
-$sql = "INSERT INTO nicolas_cf_llm (prolific_id, cond, id_question, id_pack, question, answer, rt, time) VALUES ('$prolific_id', '$cond', $id_question, $idpack, '$question', '$answer', $rt, NOW())";
+$sql = "INSERT INTO nicolas_cf_llm (prolific_id, cond, id_question, id_pack, question, answer, prob, initval, rt, time) VALUES ('$prolific_id', '$cond', $id_question, $idpack, '$question', '$answer', '$prob', '$initval', $rt, NOW())";
 
 if ($db->query($sql) === TRUE) {
   echo "New record created successfully";

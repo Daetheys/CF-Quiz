@@ -425,7 +425,7 @@ div[contenteditable] {
 .selected-answer {
     /* border-color: #99dfd6; */
     /* color: white !important; */
-    font-weight: bolder;
+    /*font-weight: bolder;*/
     transition: linear 200ms;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 12px 0px;
     background-color: rgba(var(--color), .3) !important;
@@ -625,7 +625,7 @@ div[contenteditable] {
     margin-bottom: 20px;
 }
 
-/*.quiz-answer-text-container-single:hover {
+.quiz-answer-text-container-single:hover {
     background-color: #FAFAFA;
     cursor: pointer;
 }
@@ -635,15 +635,15 @@ div[contenteditable] {
 }
 
 .quiz-answer-text-container-single:hover .numerator-radio {
-    background-color: rgba(var(--color), 1); 
-    color: white;
+    /*background-color: rgba(var(--color), 1); 
+    color: white;*/
 
-}*/
+}
 
 .quiz-answer-text-container-single .numerator-radio {
     /* border-radius: 0 50% 50% 0; */
-    background-color: #FAFAFA; 
-    color: white;
+    /*background-color: #FAFAFA; 
+    color: white;*/
 }
 
 
@@ -1035,7 +1035,7 @@ div[contenteditable] {
 
 .range .range-output {
     position: absolute;
-    /*left: 6px;
+    left: 6px;
     top: 6px;
     -webkit-transform-origin: 0 0;
     transform-origin: 0 0;
@@ -1045,48 +1045,48 @@ div[contenteditable] {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;*/
+    user-select: none;
 }
 
 .range .range-output .output {
     display: block;
     position: absolute;
     font-size: 0px;
-    /*height: 50px;
+    height: 50px;
     line-height: 50px;
     min-width: 28px;
     padding: 0 20px;
     top: -26px;
-    -webkit-transform: translate(-50%, -100%);
-    transform: translate(-50%, -100%);
+    -webkit-transform: translate(-50%, 100%);
+    transform: translate(-50%, 100%);
     background: #3C455C;
     color: #fff;
     border-radius: 100px;
     white-space: nowrap;
     font-weight: bold;
     font-size: 1.2em;
-    text-align: center;*/
+    text-align: center;
 }
 
 .range .range-output .output:before {
     content: "";
     position: absolute;
-    /*bottom: -8px;
+    bottom: -8px;
     left: 50%;
     border: 10px solid #3C455C;
     border-bottom: none;
     border-left-color: transparent;
     border-right-color: transparent;
     -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);*/
+    transform: translateX(-50%) translateY(-580%) scaleY(-1);
 }
 
 .leftlabel {
     left:0;
-    top:-30;
+    top:-50;
     position:absolute;
-    font-size: 25px;
-    font-weight: bold;
+    font-size: 20px;
+    /*font-weight: bold;*/
 }
 
 .rightlabel {

@@ -46,15 +46,24 @@ function main() {
 const init = async () => {
 
     var json = await $.getJSON("db.json");
-    var pack = json[pack_id];
+    var packs = [json[pack_id],json[pack_id+1]];
+    var new_question;
 
-    for (var i=0;i<pack.length;i++){
-        dataset.questions.push({});
-        dataset.questions[i]["text"] = pack[i].question;
-        dataset.questions[i]["answers"] = pack[i].answers;
-        dataset.questions[i]["entered"] = 0;
-        dataset.questions[i]["type"]  = "multiple";
+    const nb_simple_questions = dataset.questions.length;
+
+    for (var j=0;j<packs.length;j++){
+        for (var i=0;i<packs[j].length;i++){
+            new_question = {}
+            new_question["text"] = packs[j][i].question;
+            new_question["answers"] = packs[j][i].answers;
+            new_question["entered"] = 0;
+            new_question["type"]  = "single";
+            new_question["index"] = j*8+i;
+            dataset.questions.push(new_question);
+        }
     }
+    //Shuffle database
+    dataset.questions = dataset.questions.sort((a,b) => 0.5 - Math.random());
 
     if (reset == 1 && DEBUG) resetState();
 
@@ -103,13 +112,16 @@ const loadPreviousEnteredText = () => {
 const sendItemData = async (idx) => {
     let data = {
         "prolificID": prolificID,
-        "questionID": idx,
+        "questionID": dataset.questions[idx].index,
         "packID": pack_id,
         "question": (dataset.questions[idx].text),//+'\n'+dataset.questions[idx].answers[0]+'\n'+dataset.questions[idx].answers[1]),
-        "answer": dataset.questions[idx].entered.toString(),
+        "answer": dataset.questions[idx].entered[0],
+        "prob": dataset.questions[idx].entered[1].toString(),
+        "initVal":dataset.questions[idx].initVal.toString(),
         "cond": condition,
         "rt": rt,
     }
+    console.log(data);
 
     if (DEBUG) {
         // if debug notify with the content of sent data
@@ -395,13 +407,12 @@ class SliderManager {
                           } = {}) {
         let slider = `<main style="flex-basis: 100%">
             <form id="form" class="${classname}">
-            <div class="range">
-            <span class="leftlabel">A</span>
-            <span class="rightlabel">B</span>
+            <div id="range" class="range">
+            <span class="leftlabel">What probability ?</span>
             <input id="slider" name="range" type="range" value="${initValue}" min="${min}" max="${max}" step="${step}">
             <div class="range-output">
             <output id="output" class="output" name="output" for="range">
-            ${initValue}
+            ${initValue}%
              </output>
              </div>
              </div>
@@ -440,15 +451,15 @@ class SliderManager {
         let form = document.getElementById('form');
 
         form.oninput = function () {
-            output.value = slider.val();
+            output.value = slider.val().toString()+'%';
         };
 
         clickArgs.slider = slider;
 
         /*let ok = $('#quiz-continue-button-container');
-        ok.click(clickArgs, clickFunc);
+        ok.click(clickArgs, clickFunc);*/
 
-        return slider*/
+        return slider
     }
 
     static clickEvent(choice) {
@@ -493,7 +504,6 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
     }
     saveState();
     updateProgessBarStatus();
-    let sliderHTML = SliderManager.generateSlider({text: question["text"], min: -100, max: 100, step: 1, initValue: 0});
 
     //Add the list of answers
     appendScenario(question["text"]);
@@ -503,7 +513,14 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
         let quizQuestionDIV = document.createElement(`ul`);
         quizQuestionDIV.className = `quiz-answer-text-container-single unselected-answer`
         // Assigns ID as ASCII values (A = 65, B = 66, etc.)
-        quizQuestionDIV.id = (i).toString()
+        quizQuestionDIV.id = (i).toString();
+        quizQuestionDIV.onclick = () => {
+            if (quizQuestionDIV.classList.contains(`unselected-answer`)){
+                removeSlider();
+                selectAnswer(quizQuestionDIV.id, false, 'green', question);
+                showSlider(question);
+            }
+        }
         // Generate elements
         let quizQuestionPress = document.createElement(`li`);
         let quizQuestionNumeratorBox = document.createElement(`li`)
@@ -521,10 +538,17 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
         // Main parent append
         quizAnswersUL.appendChild(quizQuestionDIV);
     }
-    appendElement('quiz-question-container',sliderHTML);
     //appendElement('Stage',buttonHTML);
 
-    await moveQuestionContainerMiddle();
+    const initVal = Math.floor(Math.random() * 100);
+    let sliderHTML = SliderManager.generateSlider({text: question["text"], min: 0, max: 100, step: 1, initValue: initVal});
+    question["initVal"] = initVal;
+
+    appendElement('quiz-question-container',sliderHTML);
+
+    console.log($("#range"));
+    $("#range").fadeOut(0);
+    /*slider.fadeOut(0);*/
 
     var clickEnabled = true;
     SliderManager.listenOnSlider({}, function (event) {
@@ -536,6 +560,23 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
 
     SliderManager.listenOnArrowKeys();
 
+    await moveQuestionContainerMiddle();
+
+
+}
+
+const removeSlider = () => {
+    $("#range").fadeOut(200);
+}
+
+const showSlider = (question) => {
+    setTimeout( () => {
+        $("#range").fadeIn(400);
+        const initVal = Math.floor(Math.random() * 100);
+        let slider = $('#slider');
+        slider.val(initVal).change();
+        question["initVal"] = initVal;
+    }, 190);
 }
 
 
@@ -615,6 +656,77 @@ const ed_QuizQuestionElements = (type, press, numerator, container, text, n, col
     text.className = `quiz-answer-text-item`
     text.className += ' ' + color
     // press.innerText = `Press ` + n
+}
+
+// Highlights and unhighlights given answers when a keytap is pressed 
+// key indicates the id of the given answer, invoking previous will prevent the function from editing the local answered questions object
+const selectAnswer = (key, previous, color, question) => {
+    let answer = document.getElementById(key)
+    if (answer) {
+        // If only one answer can be given, unselect all answers before reselecting new answer
+        if (answer.classList.contains(`question-type-single`)) {
+            unselectAllAnswers(document.getElementById('quiz-answer-list'))
+        }
+        // If answer is not yet selected, select it
+        if (answer.classList.contains(`unselected-answer`)) {
+            answer.classList.add(`selected-answer`)
+            if (color) {
+                answer.classList.add(color);
+            }
+            answer.classList.remove(`unselected-answer`)
+            indicateSelectedAnswer(answer, color)
+            saveAnswer(answer.textContent, question)
+            // if (!previous) {
+            // storeAnswers(true, key)
+            // }
+            // If answer is already selected, unselect it
+        } else if (answer.classList.contains(`selected-answer`)) {
+            answer.classList.add(`unselected-answer`)
+            answer.classList.remove(`selected-answer`)
+            // Unhighlight selected answer buttons
+            unselectAnswerButton(answer.children)
+            // if (!previous) {
+            // storeAnswers(false, key)
+            // }
+        }
+    }
+    // Triggers a check to see if we should display continue button
+    //showHideContinueButton(dataset.questions[currentQuestionIndex])
+}
+// Changes answer button appearance to show as selected
+const indicateSelectedAnswer = (answer, color) => {
+    let button = answer.querySelectorAll('.answer-key-numerator')
+    for (let i = 0; i < button.length; i++) {
+        button[i].classList.remove(`unselected-answer-button`)
+        button[i].classList.add(`selected-answer-button`)
+        if (color)
+            button[i].classList.add(`${color}`)
+    }
+}
+
+// Unselects all answers in a question
+const unselectAllAnswers = (answerList) => {
+    for (let i = 0; i < answerList.childElementCount; i++) {
+        let child = answerList.children[i]
+        if (child.classList.contains(`selected-answer`)) {
+            child.classList.add(`unselected-answer`)
+
+            child.classList.remove(`selected-answer`)
+        }
+        // re/un-assigns children attribute elements, such as button coloring classes
+        unselectAnswerButton(child.children)
+    }
+}
+
+// Unselects individual quiz answer buttons (e.g. Press A)
+const unselectAnswerButton = (child) => {
+    for (let j = 0; j < child.length; j++) {
+        let childButton = child[j]
+        if (childButton && childButton.classList.contains(`selected-answer-button`)) {
+            childButton.classList.add(`unselected-answer-button`)
+            childButton.classList.remove(`selected-answer-button`)
+        }
+    }
 }
 
 
@@ -705,7 +817,7 @@ const continueFunction = async () => {
     if (state == 'questions') {
         hideAndShowContinue()
         let output = document.getElementById('output')
-        dataset.questions[currentQuestionIndex].entered = output.value;
+        dataset.questions[currentQuestionIndex].entered = ["",output.value];
         sendItemData(currentQuestionIndex);
         currentQuestionIndex++
     }
@@ -751,6 +863,8 @@ const cr_ContinueButton = () => {
     // Discerns whether or not to show continue button, based on whether or not an answer has been input/selected
     //showHideContinueButton(dataset.questions[currentQuestionIndex])
 }
+
+
 
 
 /*----------------------------------------------------------------------------------------------- */

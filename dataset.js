@@ -73,18 +73,19 @@ export const dataset = {
 
 	],
 	questions: [
-		/*{
-			"title": "sControl",
-			"text": "Andie is a mechanical engineer by training. During college, Andie used to collect minerals and cristals, as a hobby. Ten years later, which of these two scenarios is more probable ?",
-			"id": 1,
-			"type": "multiple",
-			"oldTitle": "sControl",
-			"entered": [''],
-			"answers":["Andie is a consultant for the British Museum","Andie is a consultant for the British Museum and builds model airplanes as a hobby"],
-			"correct": "",
-			"oldId": 1,
-			"cond": "control",
-			"dilemma": ""
-		}*/
+		{
+			"text":"Andie is a mechanical engineer by training. During college, Andie used to collect minerals and cristals, as a hobby. What did Andie do during college ?",
+			"answers":["Andie was an orchestra conductor by training and used to collect minerals and cristals, as a hobby","Andie used to collect minerals and cristals, as a hobby"],
+			"entered":0,
+			"type":"single",
+			"index":-1,
+		},
+		{
+			"text":"Brook has a Masters in Astronomy. During college, Brook used to collect minerals and cristals, as a hobby. What is Brook's training ?",
+			"answers":["Brook has a Masters in Astronomy","Brook has a Masters in Astronomy and is a logistics consultat for an important car company"],
+			"entered":0,
+			"type":"single",
+			"index":-2,
+		}
 	]
 }	
