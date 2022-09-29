@@ -784,6 +784,7 @@ const continueClickable = () => {
 }
 
 const checkInputValidity = () => {
+    return dataset.questions[currentQuestionIndex].selected != undefined;
     return Array.from(document.querySelectorAll('textarea'))
         .every(element => element.reportValidity())
 }

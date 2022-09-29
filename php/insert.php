@@ -9,7 +9,7 @@ $idpack                  = stripslashes(htmlspecialchars($_POST['packID']));
 $question                = stripslashes(htmlspecialchars($_POST['question']));
 $answer                  = stripslashes(htmlspecialchars($_POST['answer']));
 $prob                    = stripslashes(htmlspecialchars($_POST['prob']));
-$initval                 = stripslashes(htmlspecialchars($_POST['initval']));
+$initval                 = stripslashes(htmlspecialchars($_POST['initVal']));
 $rt                      = stripslashes(htmlspecialchars($_POST['rt']));
 
 try {
