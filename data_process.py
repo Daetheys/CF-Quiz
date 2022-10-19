@@ -64,6 +64,41 @@ def query(tree,style,order,hist,avoid):
     hist.append(key)
     return query(tree[key],style,order,hist,avoid)
 
+def add_premium(add):
+    linda_question_info = linda[np.random.choice(list(linda.keys()))]['info']
+    name = linda_question_info['name'][1]
+    training = linda_question_info['training 1'][1]
+    hobby = linda_question_info['hobby 1'][1]
+    hobby2 = linda_question_info['hobby 2'][1]
+    if np.random.random() > 0.5:
+        question = "What was %s's hobby during college ?" % name
+        answers = ['%s %s.' % (name,hobby),'%s %s and %s.' % (name,hobby,hobby2)]
+        correct_answer = answers[0]
+    else:
+        question = "What were %s's training and hobbies back in college ?" % name
+        answers = ['%s %s.' % (name,hobby2),'%s %s and %s.' % (name,training,hobby)]
+        correct_answer = answers[1]
+
+    order = int(np.random.random()>0.5)
+    answers = [answers[1-order],answers[order]]
+    
+    premium_q= '%s %s. During college, %s %s. %s' % (name,training,name,hobby,question)
+    premium = {'question':premium_q,'answers':answers,'info':{'type':'premium','order':order,'name':name,'training 1':training,'hobby 1':hobby,'hobby 2':hobby2,'question type':question,'correct answer':correct_answer}}
+    print('Premium:',premium)
+    add.append(premium)
+
+def add_catch(add):
+    answers = ['A','B']
+    percents = [i*10 for i in range(11)]
+    answer = np.random.choice(answers)
+    percent = np.random.choice(percents)
+    catch_q = 'Select the %s answer with a probability of %d' % (answer,percent) + '%.'
+    catch_a = ['This is the right answer','This is the wrong answer']
+    if answer == 'B':
+        catch_a.reverse()
+    catch = {"question":catch_q,"answers":catch_a,"info":{'type':'catch',"answer":answer,"percent":str(percent)}}
+    print('Catch:',catch)
+    add.append(catch)
 
 def make_database(linda_tree,bill_tree):
     db = []
@@ -142,5 +177,13 @@ for i in range(len(db)):
                 ss = pattern[s]*3+pattern[1-s]
             for o in range(2):
                 assert (t,ss,o) in d
+
+#Add catch & premium
+for i in range(len(db)):
+    for q in db[i]:
+        q['info']['type'] = 'question'
+    add_catch(db[i])
+    add_premium(db[i])
+    np.random.shuffle(db[i])
 
 json.dump(db,open(os.path.join('data','db.json'),'w'))

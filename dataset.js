@@ -45,12 +45,17 @@ export const dataset = {
 			title: "Instructions",
 			items: [
 				{
-					text: "You are going to be presented with different questions. For each of these <b>questions</b>, you'll have to provide an answer. These questions can take different formats : you can have the question directly asked, with an example or an initial start to your answer to help you structure it. Feel free to take as much time and space as you need to answer the questions. If you do additional computations please write them in the form.",
+					text: "You are about to read a summary of the <b>life story</b> of some random characters. These stories will tell you about what the characters did for fun, for work, and what their training/education history was. Then, we will jump 10 years into the future and give you some ideas on what the characters are up to now. Based on this information, we will ask you to judge which of these ideas is more probable to be true.",
 					type: "regular",
 					variables: [],
 				},
 				{
-					text: 'Please note that (very) poor quality answers, such as those composed of random characters (resulting in a nonsensical sentence) or consisting in a single repeated character  (to meet input length requirements) will potentially lead to a rejection of your submission.',
+					text: "We will provide you with two alternative scenarios (A and B), and using your mouse you will have to pick the one that seems more likely to you. Also, you will have to use a scrollbar right below the choices to determine in more exact terms how much likelier one option is than the other. Even if the characters are hypothetical, we want you to base your judgement in how 'realistic' the proposed scenarios are.",
+					type: "regular",
+					variables: [],
+				},
+				{
+					text: 'It is important that you pay attention throughout the task. To make sure that you stay engaged, we have interspersed some very simple off-topic questions (i.e. "how much is 2+2?") between the trials. We expect you to answer these correctly, failure to do so may result in the rejection of your participation.',
 					type: 'alert',
 					variables: [],
 					title: "Warning"
