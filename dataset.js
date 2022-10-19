@@ -78,7 +78,7 @@ export const dataset = {
 
 	],
 	questions: [
-		{
+		/*{
 			"text":"Andie is a mechanical engineer by training. During college, Andie used to collect minerals and cristals, as a hobby. What did Andie do during college ?",
 			"answers":["Andie was an orchestra conductor by training and used to collect minerals and cristals, as a hobby","Andie used to collect minerals and cristals, as a hobby"],
 			"entered":0,
@@ -91,6 +91,6 @@ export const dataset = {
 			"entered":0,
 			"type":"single",
 			"index":-2,
-		}
+		}*/
 	]
 }	
