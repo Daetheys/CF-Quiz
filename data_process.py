@@ -4,8 +4,8 @@ import numpy as np
 
 np.random.seed(42)
 
-linda = json.load(open(os.path.join('data','lindafull.json')))
-bill = json.load(open(os.path.join('data','billfull.json')))
+linda = json.load(open(os.path.join('data','linda2.json')))
+bill = json.load(open(os.path.join('data','bill2.json')))
 
 def get_list_items():
     return ["order","training 1","hobby 1","work 1","hobby 2"]
@@ -65,7 +65,7 @@ def query(tree,style,order,hist,avoid):
     return query(tree[key],style,order,hist,avoid)
 
 def add_premium(add):
-    linda_question_info = linda[np.random.choice(list(linda.keys()))]['info']
+    linda_question_info = np.random.choice([linda,bill])[np.random.choice(list(linda.keys()))]['info']
     name = linda_question_info['name'][1]
     training = linda_question_info['training 1'][1]
     hobby = linda_question_info['hobby 1'][1]
@@ -83,7 +83,15 @@ def add_premium(add):
     answers = [answers[1-order],answers[order]]
     
     premium_q= '%s %s. During college, %s %s. %s' % (name,training,name,hobby,question)
-    premium = {'question':premium_q,'answers':answers,'info':{'type':'premium','order':order,'name':name,'training 1':training,'hobby 1':hobby,'hobby 2':hobby2,'question type':question,'correct answer':correct_answer}}
+    info = {'type':'premium',
+            'order':order,
+            'name':linda_question_info['name'],
+            'training 1':linda_question_info['training 1'],
+            'hobby 1':linda_question_info['hobby 1'],
+            'hobby 2':linda_question_info['hobby 2'],
+            'question type':question,
+            'correct answer':correct_answer}
+    premium = {'question':premium_q,'answers':answers,'info':info}
     print('Premium:',premium)
     add.append(premium)
 
