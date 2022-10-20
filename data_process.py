@@ -69,7 +69,11 @@ def add_premium(add):
     name = linda_question_info['name'][1]
     training = linda_question_info['training 1'][1]
     hobby = linda_question_info['hobby 1'][1]
-    hobby2 = linda_question_info['hobby 2'][1]
+    hobby2_qinfo = np.random.choice([linda,bill])[np.random.choice(list(linda.keys()))]['info']
+    hobby2 = hobby2_qinfo['hobby 1'][1]
+    while hobby2 == hobby:
+        hobby2_qinfo = np.random.choice([linda,bill])[np.random.choice(list(linda.keys()))]['info']
+        hobby2 = hobby2_qinfo['hobby 1'][1]
     if np.random.random() > 0.5:
         question = "What was %s's hobby during college ?" % name
         answers = ['%s %s.' % (name,hobby),'%s %s and %s.' % (name,hobby,hobby2)]
@@ -83,12 +87,12 @@ def add_premium(add):
     answers = [answers[1-order],answers[order]]
     
     premium_q= '%s %s. During college, %s %s. %s' % (name,training,name,hobby,question)
-    info = {'type':'premium',
+    info = {'nature':'premium',
             'order':order,
             'name':linda_question_info['name'],
             'training 1':linda_question_info['training 1'],
             'hobby 1':linda_question_info['hobby 1'],
-            'hobby 2':linda_question_info['hobby 2'],
+            'hobby 2':hobby2_qinfo['hobby 2'],
             'question type':question,
             'correct answer':correct_answer}
     premium = {'question':premium_q,'answers':answers,'info':info}
@@ -104,7 +108,7 @@ def add_catch(add):
     catch_a = ['This is the right answer','This is the wrong answer']
     if answer == 'B':
         catch_a.reverse()
-    catch = {"question":catch_q,"answers":catch_a,"info":{'type':'catch',"answer":answer,"percent":str(percent)}}
+    catch = {"question":catch_q,"answers":catch_a,"info":{'nature':'catch',"answer":answer,"percent":str(percent)}}
     print('Catch:',catch)
     add.append(catch)
 
@@ -114,13 +118,15 @@ def make_database(linda_tree,bill_tree):
         #print('- i',i)
         avoid = []
         add = []
-        for tree in [linda_tree,bill_tree]:
+        for lbl,tree in [('linda',linda_tree),('bill',bill_tree)]:
             for style in ['S','A']:
                 for order in [0,1]:
                     #print('--- start query',style,order)
                     out,hist = query(tree,style,order,[],avoid)
                     avoid += hist[1:]
                     rebuild(tree,hist)
+                    out['info']['style'] = style
+                    out['info']['nature'] = 'question'
                     add.append(out)
                     #print(out)
                     #print(tree[hist[0]][hist[1]][hist[2]][hist[3]].keys())
@@ -188,8 +194,6 @@ for i in range(len(db)):
 
 #Add catch & premium
 for i in range(len(db)):
-    for q in db[i]:
-        q['info']['type'] = 'question'
     add_catch(db[i])
     add_premium(db[i])
     np.random.shuffle(db[i])
