@@ -75,6 +75,7 @@ const init = async () => {
             new_question["entered"] = 0;
             new_question["type"]  = "single";
             new_question["index"] = j*8+i;
+            new_question["index_um"] = packs[j][i]['info']['index_um']
             dataset.questions.push(new_question);
         }
     }
@@ -129,7 +130,7 @@ const sendItemData = async (idx) => {
     let data = {
         "prolificID": prolificID,
         "questionID": dataset.questions[idx].index,
-        "packID": pack_id,
+        "packID": dataset.questions[idx].index_um,
         "question": (dataset.questions[idx].text),//+'\n'+dataset.questions[idx].answers[0]+'\n'+dataset.questions[idx].answers[1]),
         "answer": dataset.questions[idx].entered[0],
         "prob": dataset.questions[idx].entered[1].toString(),

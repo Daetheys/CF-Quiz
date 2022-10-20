@@ -198,4 +198,10 @@ for i in range(len(db)):
     add_premium(db[i])
     np.random.shuffle(db[i])
 
+np.random.shuffle(db)
+
+for i in range(len(db)):
+    for j in range(len(db[i])):
+        db[i][j]['info']['index_um'] = i
+
 json.dump(db,open(os.path.join('data','db.json'),'w'))
