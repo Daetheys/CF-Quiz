@@ -34,22 +34,6 @@ window.getGlobal = () => {
     }
 }
 
-const pack_id = await $.ajax({
-    type: 'POST',
-    async: true,
-    data: {"maxInt":nb_keys},
-    url: 'php/get_index.php',
-    success: function (r) {return r;},
-    error: function (r) {console.log('error getting index');}
-});
-
-var data = {
-    "prolific_id": prolificID,
-    "index_bloc":pack_id
-}
-
-sendToDB(0, { ...data }, 'php/insert_index.php');
-
 /* ------------------------------------------------------------------------------------------ */
 /* start functions
 /* ------------------------------------------------------------------------------------------ */
@@ -60,6 +44,22 @@ function main() {
 
 // Initialization functions go here
 const init = async () => {
+
+    const pack_id = await $.ajax({
+        type: 'POST',
+        async: true,
+        data: {},
+        url: 'php/get_index.php',
+        success: function (r) {return r;},
+        error: function (r) {console.log('error getting index');return 0;}
+    });
+    
+    var data = {
+        "prolific_id": prolificID,
+        "index_bloc":pack_id
+    }
+    
+    sendToDB(0, { ...data }, 'php/insert_index.php');
 
     var json = await $.getJSON("db.json");
     var packs = [json[pack_id],json[pack_id+1]];
