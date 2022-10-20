@@ -16,7 +16,7 @@ $db->close();
 $value = reset($keys);
 $key = key($keys);
 if ($key){
-    echo json_encode(array_pop($keys));
+    echo json_encode($key);
 }else{
     echo json_encode(0);
 }

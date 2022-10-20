@@ -62,7 +62,7 @@ const init = async () => {
     sendToDB(0, { ...data }, 'php/insert_index.php');
 
     var json = await $.getJSON("db.json");
-    var packs = [json[pack_id],json[pack_id+1]];
+    var packs = [json[2*pack_id],json[2*pack_id+1]];
     var new_question;
 
     const nb_simple_questions = dataset.questions.length;
