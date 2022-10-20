@@ -11,8 +11,6 @@ var TIME_BETWEEN_QUESTIONS = 1000;
 const MAX_REQUESTS = 7;
 const DEBUG = 0;
 const condition = 'cf';
-const pack_id = 0;
-
 
 // global variables
 var currentQuestionIndex = 0;
@@ -35,6 +33,22 @@ window.getGlobal = () => {
         "currentInstructionIndex": currentInstructionIndex,
     }
 }
+
+const pack_id = await $.ajax({
+    type: 'POST',
+    async: true,
+    data: {"maxInt":nb_keys},
+    url: 'php/get_index.php',
+    success: function (r) {return r;},
+    error: function (r) {console.log('error getting index');}
+});
+
+var data = {
+    "prolific_id": prolificID,
+    "index_bloc":pack_id
+}
+
+sendToDB(0, { ...data }, 'php/insert_index.php');
 
 /* ------------------------------------------------------------------------------------------ */
 /* start functions

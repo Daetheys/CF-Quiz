@@ -2,20 +2,22 @@
 
 include 'connectDB.php';
 
-$maxint = stripslashes(htmlspecialchars($_POST['maxInt']));
-$maxit = 5;
-
-$keys = array_fill(0,256,0)
+$keys = array_fill(0,256,0);
 
 $query= $db->query("SELECT DISTINCT index_bloc FROM nicolas_cf_index");
-    
+if (!query)
+    die("Database didn't work");
 while ($row = $query->fetch_row()){
-    unset($keys[$row['index_bloc']]);
-    continue;
+    unset($keys[$row['0']]);
 }
 
 $db->close();
 
-echo json_encode(array_pop($keys));
-
+$value = reset($keys);
+$key = key($keys);
+if ($key){
+    echo json_encode(array_pop($keys));
+}else{
+    echo json_encode(0);
+}
 ?>
