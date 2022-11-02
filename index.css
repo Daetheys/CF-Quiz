@@ -531,6 +531,15 @@ div[contenteditable] {
     border-radius: .3rem;
 }
 
+.quiz-math-text-container {
+    margin-bottom: 5px;
+    /*background-color: #FAFAFA;*/
+    padding: 5px 5px 5px 5px;
+    display:flex;
+    justify-content:center;
+    /*border-radius: .3rem;*/
+}
+
 .quiz-question-dilemma-container {
     border-left-color: orange;
     border-left-width: 5px;
@@ -569,7 +578,16 @@ div[contenteditable] {
     max-width: 100%;
     font-size: 20px;
     line-height: 32px;
-    color: rgba(48, 48, 48, 0.671);
+    color: rgba(24, 24, 24, 0.671);
+    font-weight: normal;
+    margin: 0px;
+}
+
+.quiz-math-text-item {
+    max-width: 100%;
+    font-size: 20px;
+    line-height: 32px;
+    color: rgba(48, 48, 48, 0.900);
     font-weight: normal;
     margin: 0px;
 }

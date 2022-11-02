@@ -53,7 +53,7 @@ const init = async () => {
         success: function (r) {return r;},
         error: function (r) {console.log('error getting index');return 0;}
     });
-    
+    */
     var data = {
         "prolific_id": prolificID,
         "index_bloc":pack_id
@@ -377,6 +377,14 @@ const appendScenario = (question, asHTML = false, additional = false, example = 
     quizQuestionTextDIV.className = 'quiz-question-text-container quiz-question-story-container'
     let quizQuestionTextSPAN = document.createElement(`span`)
     quizQuestionTextSPAN.className = `quiz-question-text-item`
+
+    let quizMathTextDIV = document.createElement('div')
+    quizMathTextDIV.id = 'quiz-math-text-container'
+    quizMathTextDIV.className = 'quiz-math-text-container'
+    let quizMathTextSPAN = document.createElement(`span`)
+    quizMathTextSPAN.className = `quiz-math-text-item`
+    quizMathTextSPAN.innerHTML = 'Mathematically speaking, the most probable answer is'
+
     let text = question;
     text = '<b>Question</b> <br>' + question;
     // if (asHTML) {
@@ -386,8 +394,11 @@ const appendScenario = (question, asHTML = false, additional = false, example = 
     // }
     quizQuestionTextDIV.appendChild(quizQuestionTextSPAN)
 
+    quizMathTextDIV.appendChild(quizMathTextSPAN)
+
     let panel = document.getElementById('quiz-question-container')
     panel.appendChild(quizQuestionTextDIV)
+    panel.appendChild(quizMathTextDIV)
 
     if (additional)
         quizQuestionTextDIV.classList.add('opacityblur');
