@@ -16,6 +16,14 @@ $prob                    = stripslashes(htmlspecialchars($_POST['prob']));
 $initval                 = stripslashes(htmlspecialchars($_POST['initVal']));
 $rt                      = stripslashes(htmlspecialchars($_POST['rt']));
 
+function debug_to_console($data) {
+  $output = $data;
+  if (is_array($output))
+      $output = implode(',', $output);
+
+  echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+}
+
 try {
   $answer = mysqli_real_escape_string($db, $answer);
   $question = mysqli_real_escape_string($db, $question);
@@ -28,7 +36,7 @@ if ($db->connect_error) {
   die("Connection failed: " . $db->connect_error);
 }
 # '$variable' if string, otherwise $variable
-$sql = 'INSERT INTO nicolas_cf_llm (prolific_id, cond, id_question, id_pack, question, id_question_ex, id_pack_ex, question_ex, answer, answer_ex, prob, initval, rt, time) VALUES ("$prolific_id", "$cond", $id_question, $idpack, "$question", $id_question_ex, $id_pack_ex, "$question_ex", "$answer", "$answer_ex", "$prob", "$initval", $rt, NOW())';
+$sql = "INSERT INTO nicolas_cf_llm (prolific_id, cond, id_question, id_pack, question, id_question_ex, id_pack_ex, question_ex, answer, answer_ex, prob, initval, rt, time) VALUES ('$prolific_id', '$cond', $id_question, $idpack, '$question', $id_question_ex, $id_pack_ex, '$question_ex', '$answer', '$answer_ex', '$prob', '$initval', $rt, NOW())";
 
 if ($db->query($sql) === TRUE) {
   echo "New record created successfully";
