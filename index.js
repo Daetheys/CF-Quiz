@@ -1118,6 +1118,7 @@ const notify = (message, title, i) => {
 
 
 const sendToDB = async (call, data, url) => {
+    console.log(data);
     $.ajax({
         type: 'POST',
         data: data,
