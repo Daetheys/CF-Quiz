@@ -232,4 +232,9 @@ for i in range(len(db)):
         fq = fold_condition(lq)
         db_ex[i] += fq
 
+for i in range(len(db)):
+    for j in range(len(db[i])):
+        for k in range(len(db[i][j])):
+            db[i][j][k]['info']['index_um'] = i
+
 json.dump(db_ex,open(os.path.join('data','db_ex.json'),'w'))
