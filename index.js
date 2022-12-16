@@ -45,27 +45,43 @@ function main() {
 // Initialization functions go here
 const init = async () => {
 
-    const pack_id = await $.ajax({
+    const pack_id = 0;/*await $.ajax({
         type: 'POST',
         async: true,
         data: {},
         url: 'php/get_index.php',
         success: function (r) {return r;},
         error: function (r) {console.log('error getting index');return 0;}
-    });
-    */
+    });*/
+
     var data = {
         "prolific_id": prolificID,
         "index_bloc":pack_id
     }
+
+    dataset.condition = 'example';
     
     sendToDB(0, { ...data }, 'php/insert_index.php');
 
-    var json = await $.getJSON("db.json");
+    if (dataset.condition == 'example'){
+        var json = await $.getJSON("db_ex.json");
+    }else{
+        var json = await $.getJSON("db.json");
+    }
     var packs = [json[2*pack_id],json[2*pack_id+1]];
     var new_question;
 
     const nb_simple_questions = dataset.questions.length;
+
+    if (dataset.condition == 'example'){
+        for (var j=0;j<packs.length;j++){
+            console.log('a');
+            console.log(packs[j]);
+            packs[j] = packs[j].flat();
+            console.log(packs[j].flat());
+            console.log(packs[j]);
+        }
+    }
 
     for (var j=0;j<packs.length;j++){
         for (var i=0;i<packs[j].length;i++){
@@ -75,10 +91,21 @@ const init = async () => {
             new_question["entered"] = 0;
             new_question["type"]  = "single";
             new_question["index"] = j*8+i;
-            new_question["index_um"] = packs[j][i]['info']['index_um']
+            new_question["index_um"] = packs[j][i]['info']['index_um'];
+            new_question['order'] = packs[j][i]['info']['order'];
             dataset.questions.push(new_question);
         }
     }
+
+    if (dataset.condition == 'example'){
+        var new_list = [];
+        for (var i=0;i<dataset.questions.length/2;i++){
+            dataset.questions[i*2]['example'] = dataset.questions[i*2+1];
+            new_list.push(dataset.questions[i*2]);
+        }
+        dataset.questions = new_list;
+    }
+
     //Shuffle database
     dataset.questions = dataset.questions.sort((a,b) => 0.5 - Math.random());
 
@@ -90,13 +117,14 @@ const init = async () => {
     setProlificID()
 
     if (currentQuestionIndex == 0)
-        dataset.questions = shuffle(dataset.questions);
+        shuffle(dataset.questions);
 
     if (state == 'end') {
         loadEndPanel()
         return
     }
     cr_ContinueButton()
+
 
     // debugger;
     loadInstructions(dataset.instructions[currentInstructionIndex], true);
@@ -369,7 +397,7 @@ const appendInfo = (title, text, variables, asHTML = false, type = "regular") =>
 }
 
 // Appends the scenario
-const appendScenario = (question, asHTML = false, additional = false, example = false) => {
+const appendScenario = (question,prefix='', asHTML = false, additional = false, example = false,reasoning=false) => {
     // Generating question text
     let i = document.getElementById('quiz-question-container').childNodes.length
     let quizQuestionTextDIV = document.createElement('div')
@@ -378,15 +406,17 @@ const appendScenario = (question, asHTML = false, additional = false, example = 
     let quizQuestionTextSPAN = document.createElement(`span`)
     quizQuestionTextSPAN.className = `quiz-question-text-item`
 
-    let quizMathTextDIV = document.createElement('div')
-    quizMathTextDIV.id = 'quiz-math-text-container'
-    quizMathTextDIV.className = 'quiz-math-text-container'
-    let quizMathTextSPAN = document.createElement(`span`)
-    quizMathTextSPAN.className = `quiz-math-text-item`
-    quizMathTextSPAN.innerHTML = 'Mathematically speaking, the most probable answer is'
+    if (dataset.condition == 'reasoning'){
+        let quizMathTextDIV = document.createElement('div')
+        quizMathTextDIV.id = 'quiz-math-text-container'
+        quizMathTextDIV.className = 'quiz-math-text-container'
+        let quizMathTextSPAN = document.createElement(`span`)
+        quizMathTextSPAN.className = `quiz-math-text-item`
+        quizMathTextSPAN.innerHTML = 'Mathematically speaking, the most probable answer is'
+    }
 
     let text = question;
-    text = '<b>Question</b> <br>' + question;
+    text = '<b>'+prefix+'Question</b> <br>' + question;
     // if (asHTML) {
     quizQuestionTextSPAN.innerHTML = text;
     // } else {
@@ -394,11 +424,13 @@ const appendScenario = (question, asHTML = false, additional = false, example = 
     // }
     quizQuestionTextDIV.appendChild(quizQuestionTextSPAN)
 
-    quizMathTextDIV.appendChild(quizMathTextSPAN)
-
     let panel = document.getElementById('quiz-question-container')
     panel.appendChild(quizQuestionTextDIV)
-    panel.appendChild(quizMathTextDIV)
+
+    if (reasoning){
+        quizMathTextDIV.appendChild(quizMathTextSPAN)
+        panel.appendChild(quizMathTextDIV)
+    }
 
     if (additional)
         quizQuestionTextDIV.classList.add('opacityblur');
@@ -521,7 +553,7 @@ function generateQuestion(question) {
 }
 
 // Loads a multiple choice quiz question
-const loadQuestion = async (question, init, additional = false, show_title = true, example = false) => {
+const loadQuestion = async (question, init, additional = false, show_title = true) => {
     startTime = Date.now();
     if (!progressBarIsVisible()) {
         toggleProgressBar();
@@ -531,6 +563,53 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
     updateProgessBarStatus();
 
     //Add the list of answers
+    if (dataset.condition=='example'){
+        appendScenario(question.example['text'],'Example ')
+        let quizAnswersULEx = appendAnswersList('Ex');
+        let lettersEx = ['A','B']
+        for (let i = 0; i< question.example.answers.length; i++){
+            let quizQuestionDIVEx = document.createElement(`ul`);
+            quizQuestionDIVEx.id = 'Ex'+(i).toString();
+            quizQuestionDIVEx.className = `quiz-answer-text-container-single unselected-answer`
+            // Assigns ID as ASCII values (A = 65, B = 66, etc.)
+            console.log(question.example.answers[i]);
+            console.log(question.example);
+            /*quizQuestionDIVEx.onclick = () => {
+                if (quizQuestionDIVEx.classList.contains(`unselected-answer`)){
+                    removeSlider();
+                    selectAnswer(quizQuestionDIVEx.id, false, 'green', question.example);
+                    question.example['selected'] = lettersEx[i];
+                    showSlider(question.example);
+                }
+            }*/
+            quizQuestionDIVEx.classList.add(`selected-answer`)
+            let quizQuestionPressEx = document.createElement(`li`);
+            let quizQuestionNumeratorBoxEx = document.createElement(`li`)
+            quizQuestionNumeratorBoxEx.className = `answer-key-numerator-box`;
+            let quizQuestionNumeratorEx = document.createElement(`li`);
+            let quizQuestionTextEx = document.createElement(`li`);
+            quizQuestionNumeratorBoxEx.append(quizQuestionNumeratorEx)
+            // Adding elements to quiz answers
+            ed_QuizQuestionElements(question.type, quizQuestionPressEx, quizQuestionNumeratorEx, quizQuestionDIVEx, quizQuestionTextEx, (i + 1).toString(), 'green')
+            // Convert ASCII code to text for multiple choice selection
+            quizQuestionNumeratorEx.innerText = lettersEx[i];
+            quizQuestionTextEx.innerText = question.example["answers"][i];
+            // Psuedoparent append
+            quizQuestionDIVEx.append(quizQuestionPressEx, quizQuestionNumeratorBoxEx, quizQuestionTextEx);
+            // Main parent append
+            quizAnswersULEx.appendChild(quizQuestionDIVEx);
+
+            if (i==1-question.example.order){
+                console.log('selecting:'+quizQuestionDIVEx.id);
+                quizQuestionDIVEx.classList.add(`selected-answer`)
+                quizQuestionDIVEx.classList.add('green');
+                quizQuestionDIVEx.classList.remove(`unselected-answer`)
+            } else {
+                quizQuestionDIVEx.classList.add(`unselected-answer`)
+                quizQuestionDIVEx.classList.remove(`selected-answer`)
+            }
+        }
+    }
     appendScenario(question["text"]);
     let quizAnswersUL = appendAnswersList();
     let letters = ['A','B']
@@ -614,13 +693,13 @@ const loadNewQuestion = async (adjustment) => {
         removeAllChildren(`quiz-question-container`);
         if (adjustment == `next`) {
             if (dataset.questions[currentQuestionIndex].blocked){
-                loadQuestion(dataset.questions[currentQuestionIndex], true, false, true, true);
+                loadQuestion(dataset.questions[currentQuestionIndex], true, false, true);
             } else {
                 loadQuestion(dataset.questions[currentQuestionIndex]);
             }
         }
         if ("additional" in dataset.questions[currentQuestionIndex])
-            loadQuestion(dataset.questions[currentQuestionIndex].additional, false, true, false, false);
+            loadQuestion(dataset.questions[currentQuestionIndex].additional, false, true, false);
     }
     return !canLoad;
 }
@@ -649,14 +728,14 @@ const questionContainerLoad = (adjustment) => {
 /* Answer management
 /*----------------------------------------------------------------------------------------------- */
 
-const appendAnswersList = () => {
+const appendAnswersList = (name='') => {
     // Generating answer elements
     let quizAnswersDIV = document.createElement(`div`)
     quizAnswersDIV.id = 'quiz-answer-text-container'
     quizAnswersDIV.className = 'quiz-answer-text-container'
 
     let quizAnswersUL = document.createElement(`ul`)
-    quizAnswersUL.id = `quiz-answer-list`
+    quizAnswersUL.id = name+`quiz-answer-list`
     quizAnswersUL.className = `quiz-answer-list`
 
     quizAnswersDIV.appendChild(quizAnswersUL)
@@ -687,13 +766,17 @@ const ed_QuizQuestionElements = (type, press, numerator, container, text, n, col
 // key indicates the id of the given answer, invoking previous will prevent the function from editing the local answered questions object
 const selectAnswer = (key, previous, color, question) => {
     let answer = document.getElementById(key)
+    console.log('select answer');
     if (answer) {
+        console.log('found answer');
         // If only one answer can be given, unselect all answers before reselecting new answer
         if (answer.classList.contains(`question-type-single`)) {
+            console.log('unselect');
             unselectAllAnswers(document.getElementById('quiz-answer-list'))
         }
         // If answer is not yet selected, select it
         if (answer.classList.contains(`unselected-answer`)) {
+            console.log('select answer')
             answer.classList.add(`selected-answer`)
             if (color) {
                 answer.classList.add(color);
@@ -701,11 +784,13 @@ const selectAnswer = (key, previous, color, question) => {
             answer.classList.remove(`unselected-answer`)
             indicateSelectedAnswer(answer, color)
             saveAnswer(answer.textContent, question)
+            console.log('selcted answer');
             // if (!previous) {
             // storeAnswers(true, key)
             // }
             // If answer is already selected, unselect it
         } else if (answer.classList.contains(`selected-answer`)) {
+            console.log('unselect 2');
             answer.classList.add(`unselected-answer`)
             answer.classList.remove(`selected-answer`)
             // Unhighlight selected answer buttons

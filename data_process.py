@@ -205,3 +205,31 @@ for i in range(len(db)):
         db[i][j]['info']['index_um'] = i
 
 json.dump(db,open(os.path.join('data','db.json'),'w'))
+
+#Example condition
+def extract_condition(l,c_name):
+    ext = []
+    for e in l:
+        if e['info']['nature'] == c_name or e['info']['nature'] == 'question' and e['info']['type'] == c_name:
+            ext.append(e)
+    return e
+def fold_condition(l):
+    assert len(l)%2 == 0
+    l2 = []
+    indexs = list(range(len(l)))
+    while len(indexs)>0:
+        j = np.random.randint(1,len(indexs))
+        l2.append([l[indexs[0]],l[indexs[j]]])
+    return l2
+
+db_ex = []
+for i in range(len(db)):
+    add_catch(db[i])
+    add_premium(db[i])
+    db_ex.append([])
+    for c_name in ['linda','bill','premium','catch']:
+        lq = extract_condition(db[i],c_name)
+        fq = fold_condition(lq)
+        db_ex[i] += fq
+
+json.dump(db_ex,open(os.path.join('data','db_ex.json'),'w'))
