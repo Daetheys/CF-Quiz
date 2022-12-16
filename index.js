@@ -160,7 +160,11 @@ const sendItemData = async (idx) => {
         "questionID": dataset.questions[idx].index,
         "packID": dataset.questions[idx].index_um,
         "question": (dataset.questions[idx].text),//+'\n'+dataset.questions[idx].answers[0]+'\n'+dataset.questions[idx].answers[1]),
+        "questionIDEx": dataset.questions[idx].example.index,
+        "packIDEx": dataset.questions[idx].example.index_um,
+        "questionEx": dataset.questions[idx].example.text,
         "answer": dataset.questions[idx].entered[0],
+        "answer_ex": dataset.questions[idx].example.entered[0],
         "prob": dataset.questions[idx].entered[1].toString(),
         "initVal":dataset.questions[idx].initVal.toString(),
         "cond": condition,
@@ -604,6 +608,8 @@ const loadQuestion = async (question, init, additional = false, show_title = tru
                 quizQuestionDIVEx.classList.add(`selected-answer`)
                 quizQuestionDIVEx.classList.add('green');
                 quizQuestionDIVEx.classList.remove(`unselected-answer`)
+                indicateSelectedAnswer(quizQuestionDIVEx, 'green')
+                saveAnswer(quizQuestionDIVEx.textContent, question.example)
             } else {
                 quizQuestionDIVEx.classList.add(`unselected-answer`)
                 quizQuestionDIVEx.classList.remove(`selected-answer`)
